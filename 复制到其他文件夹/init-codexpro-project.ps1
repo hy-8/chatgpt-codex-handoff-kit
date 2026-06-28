@@ -20,11 +20,26 @@ function Write-IfMissing {
   }
 
   if (Test-Path -LiteralPath $fullPath) {
+    if ([System.IO.Path]::GetExtension($fullPath).Equals(".bat", [System.StringComparison]::OrdinalIgnoreCase)) {
+      $bytes = [System.IO.File]::ReadAllBytes($fullPath)
+      if ($bytes.Length -ge 3 -and $bytes[0] -eq 0xEF -and $bytes[1] -eq 0xBB -and $bytes[2] -eq 0xBF) {
+        $text = Get-Content -Raw -Encoding UTF8 -LiteralPath $fullPath
+        [System.IO.File]::WriteAllText($fullPath, $text, [System.Text.Encoding]::ASCII)
+        Write-Host "Fixed BOM: $RelativePath"
+        return
+      }
+    }
     Write-Host "Keep existing: $RelativePath"
     return
   }
 
-  Set-Content -LiteralPath $fullPath -Value $Content.TrimStart("`r", "`n") -Encoding UTF8
+  $text = $Content.TrimStart("`r", "`n")
+  if ([System.IO.Path]::GetExtension($fullPath).Equals(".bat", [System.StringComparison]::OrdinalIgnoreCase)) {
+    [System.IO.File]::WriteAllText($fullPath, $text, [System.Text.Encoding]::ASCII)
+  } else {
+    $utf8NoBom = [System.Text.UTF8Encoding]::new($false)
+    [System.IO.File]::WriteAllText($fullPath, $text, $utf8NoBom)
+  }
   Write-Host "Created: $RelativePath"
 }
 
