@@ -1,0 +1,20 @@
+# Secrets and tunnel/runtime output
+.env
+.env.*
+*.log
+
+# Dependencies and build output
+node_modules/
+dist/
+build/
+.cache/
+
+# CodexPro runtime files that should not be committed
+.ai-bridge/execution-log.jsonl
+.ai-bridge/session-log.jsonl
+.ai-bridge/implementation-diff.patch
+.ai-bridge/watch-handoff-state.json
+.ai-bridge/codexpro-*.log
+.ai-bridge/codex-status.md
+.ai-bridge/codexpro-self-test.md
+.ai-bridge/codexpro-port.txt
